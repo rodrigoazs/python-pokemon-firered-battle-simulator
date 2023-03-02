@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class Ability(Enum):
+    NONE = 0
     STENCH = 1
     DRIZZLE = 2
     SPEED_BOOST = 3
