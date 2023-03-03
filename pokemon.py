@@ -59,6 +59,7 @@ def is_type_physical(type_):
 
 def is_type_special(type_):
     return type_ in [
+        "TYPE_FIRE",
         "TYPE_WATER",
         "TYPE_GRASS",
         "TYPE_ELECTRIC",
