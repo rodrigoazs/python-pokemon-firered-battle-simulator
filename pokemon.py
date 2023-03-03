@@ -314,7 +314,7 @@ def calculate_base_damage(
 
     if is_type_physical(type_):
         if environment.g_crit_multiplier == 2:
-            if attacker.stat_stages["STAT_ATK"] > 6:
+            if attacker.stat_stages["STAT_ATK"] > 0:
                 damage = apply_stat_mod(damage, attacker, attack, "STAT_ATK")
             else:
                 damage = attack
@@ -325,7 +325,7 @@ def calculate_base_damage(
         damage *= 2 * attacker.level / 5 + 2
 
         if environment.g_crit_multiplier == 2:
-            if defender.stat_stages["STAT_DEF"] < 6:
+            if defender.stat_stages["STAT_DEF"] < 0:
                 damage_helper = apply_stat_mod(
                     damage_helper, defender, defense, "STAT_DEF"
                 )
@@ -364,7 +364,7 @@ def calculate_base_damage(
 
     if is_type_special(type_):
         if environment.g_crit_multiplier == 2:
-            if attacker.stat_stages["STAT_SPATK"] > 6:
+            if attacker.stat_stages["STAT_SPATK"] > 0:
                 damage = apply_stat_mod(damage, attacker, sp_attack, "STAT_SPATK")
             else:
                 damage = sp_attack
@@ -375,7 +375,7 @@ def calculate_base_damage(
         damage *= 2 * attacker.level / 5 + 2
 
         if environment.g_crit_multiplier == 2:
-            if defender.stat_stages["STAT_SPDEF"] < 6:
+            if defender.stat_stages["STAT_SPDEF"] < 0:
                 damage_helper = apply_stat_mod(
                     damage_helper, defender, sp_defense, "STAT_SPDEF"
                 )

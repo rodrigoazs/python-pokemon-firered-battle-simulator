@@ -8,6 +8,14 @@ attacker = BattlePokemon(
     sp_attack=15,
     sp_defense=17,
     ability="ABILITY_TORRENT",
+    stat_stages={
+        "STAT_HP": 0,
+        "STAT_ATK": 6,
+        "STAT_DEF": 0,
+        "STAT_SPEED": 0,
+        "STAT_SPATK": 0,
+        "STAT_SPDEF": 0,
+    },
 )
 defender = BattlePokemon(
     level=10,
@@ -17,6 +25,14 @@ defender = BattlePokemon(
     sp_attack=15,
     sp_defense=17,
     ability="ABILITY_TORRENT",
+    stat_stages={
+        "STAT_HP": 0,
+        "STAT_ATK": 0,
+        "STAT_DEF": 0,
+        "STAT_SPEED": 0,
+        "STAT_SPATK": 0,
+        "STAT_SPDEF": 0,
+    },
 )
 
 damage = calculate_base_damage(
