@@ -247,18 +247,18 @@ def calculate_base_damage(
     if defender.ability == "ABILITY_THICK_FAT" and (
         type_ == "TYPE_FIRE" or type_ == "TYPE_ICE"
     ):
-        sp_attack /= 2
+        sp_attack *= 0.5
     if attacker.ability == "ABILITY_HUSTLE":
-        attack = (150 * attack) / 100
+        attack *= 1.5
 
     #     if (attacker->ability == ABILITY_PLUS && ABILITY_ON_FIELD2(ABILITY_MINUS))
     #         spAttack = (150 * spAttack) / 100;
     #     if (attacker->ability == ABILITY_MINUS && ABILITY_ON_FIELD2(ABILITY_PLUS))
     #         spAttack = (150 * spAttack) / 100;
     if attacker.ability == "ABILITY_GUTS" and attacker.status1:
-        attack = (150 * attack) / 100
+        attack *= 1.5
     if defender.ability == "ABILITY_MARVEL_SCALE" and defender.status1:
-        defense = (150 * defense) / 100
+        defense *= 1.5
     #     if (type == TYPE_ELECTRIC && AbilityBattleEffects(ABILITYEFFECT_FIELD_SPORT, 0, 0, ABILITYEFFECT_MUD_SPORT, 0))
     #         gBattleMovePower /= 2;
     #     if (type == TYPE_FIRE && AbilityBattleEffects(ABILITYEFFECT_FIELD_SPORT, 0, 0, ABILITYEFFECT_WATER_SPORT, 0))
@@ -268,29 +268,29 @@ def calculate_base_damage(
         and attacker.ability == "ABILITY_OVERGROW"
         and attacker.hp <= (attacker.max_hp / 3)
     ):
-        g_battle_move_power = (150 * g_battle_move_power) / 100
+        g_battle_move_power *= 1.5
     if (
         type_ == "TYPE_FIRE"
         and attacker.ability == "ABILITY_BLAZE"
         and attacker.hp <= (attacker.max_hp / 3)
     ):
-        g_battle_move_power = (150 * g_battle_move_power) / 100
+        g_battle_move_power *= 1.5
     if (
         type_ == "TYPE_WATER"
         and attacker.ability == "ABILITY_TORRENT"
         and attacker.hp <= (attacker.max_hp / 3)
     ):
-        g_battle_move_power = (150 * g_battle_move_power) / 100
+        g_battle_move_power *= 1.5
     if (
         type_ == "TYPE_BUG"
         and attacker.ability == "ABILITY_SWARM"
         and attacker.hp <= (attacker.max_hp / 3)
     ):
-        g_battle_move_power = (150 * g_battle_move_power) / 100
+        g_battle_move_power *= 1.5
 
     # TODO: where g_current_move comes from?
     if G_BATTLE_MOVES[g_current_move]["effect"] == "EFFECT_EXPLOSION":
-        defense /= 2
+        defense *= 0.5
 
     if is_type_physical(type_):
         if g_crit_multiplier == 2:
@@ -301,7 +301,7 @@ def calculate_base_damage(
         else:
             damage = apply_stat_mod(damage, attacker, attack, "STAT_ATK")
 
-        damage = damage * g_battle_move_power
+        damage *= g_battle_move_power
         damage *= 2 * attacker.level / 5 + 2
 
         if g_crit_multiplier == 2:
@@ -318,23 +318,23 @@ def calculate_base_damage(
         damage /= 50
 
         if ("STATUS1_BURN" in attacker.status1) and attacker.ability != "ABILITY_GUTS":
-            damage /= 2
+            damage *= 0.5
 
         if "SIDE_STATUS_REFLECT" in side_status and g_crit_multiplier == 1:
             if (
                 "BATTLE_TYPE_DOUBLE" in g_battle_type_flags
                 and count_alive_mons_in_battle_def_side == 2
             ):
-                damage = 2 * (damage / 3)
+                damage *= 2 / 3
             else:
-                damage /= 2
+                damage *= 0.5
 
         if (
             "BATTLE_TYPE_DOUBLE" in g_battle_type_flags
             and G_BATTLE_MOVES[move].target == "MOVE_TARGET_BOTH"
             and count_alive_mons_in_battle_def_side == 2
         ):
-            damage /= 2
+            damage *= 0.5
 
         # moves always do at least 1 damage.
         damage = max([1, damage])
@@ -369,30 +369,32 @@ def calculate_base_damage(
         damage /= damage_helper
         damage /= 50
 
+        # -- SCREEN --
         if "SIDE_STATUS_LIGHTSCREEN" in side_status and g_crit_multiplier == 1:
             if (
                 "BATTLE_TYPE_DOUBLE" in g_battle_type_flags
                 and count_alive_mons_in_battle_def_side == 2
             ):
-                damage = 2 * (damage / 3)
+                damage *= 2 / 3
             else:
-                damage /= 2
+                damage *= 0.5
 
         if (
             "BATTLE_TYPE_DOUBLE" in g_battle_type_flags
             and G_BATTLE_MOVES[move].target == "MOVE_TARGET_BOTH"
             and count_alive_mons_in_battle_def_side == 2
         ):
-            damage /= 2
+            damage *= 0.5
 
+        # -- WEATHER --
         # are effects of weather negated with cloud nine or air lock
         if weather_has_effect2:
             # TODO: should be temporary or was a bug?
             if g_battle_weather == "B_WEATHER_RAIN":
                 if type_ == "TYPE_FIRE":
-                    damage /= 2
+                    damage *= 0.5
                 elif type_ == "TYPE_WATER":
-                    damage = (15 * damage) / 10
+                    damage *= 1.5
 
             # TODO: should be temporary or was a bug?
             if (
@@ -400,13 +402,13 @@ def calculate_base_damage(
                 or g_battle_weather == "B_WEATHER_SANDSTORM"
                 or g_battle_weather == "B_WEATHER_HAIL"
             ) and g_current_move == "MOVE_SOLAR_BEAM":
-                damage /= 2
+                damage *= 0.5
 
             if g_battle_weather == "B_WEATHER_SUN":
                 if type_ == "TYPE_FIRE":
-                    damage = (15 * damage) / 10
+                    damage *= 1.5
                 elif type_ == "TYPE_WATER":
-                    damage /= 2
+                    damage *= 0.5
 
             # flash fire triggered
     #         if ((gBattleResources->flags->flags[battlerIdAtk] & RESOURCE_FLAG_FLASH_FIRE) && type == TYPE_FIRE)
