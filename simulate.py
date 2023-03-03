@@ -10,7 +10,7 @@ attacker = BattlePokemon(
     ability="ABILITY_TORRENT",
     stat_stages={
         "STAT_HP": 0,
-        "STAT_ATK": 6,
+        "STAT_ATK": -6,
         "STAT_DEF": 0,
         "STAT_SPEED": 0,
         "STAT_SPATK": 0,
@@ -44,6 +44,7 @@ damage = calculate_base_damage(
     type_override=None,
     battler_id_atk=None,
     battler_id_def=None,
+    environment={"g_crit_multiplier": 1},
 )
 
 print(f"damage: {damage}")

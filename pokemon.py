@@ -155,8 +155,21 @@ def calculate_base_damage(
     type_override: str = None,
     battler_id_atk: int = None,
     battler_id_def: int = None,
-    environment: Environment = Environment(),
+    environment: dict = {},
 ):
+
+    # environment
+    g_current_move = environment.get("g_current_move", "MOVE_NONE")
+    g_crit_multiplier = environment.get("g_crit_multiplier", 1)
+    weather_has_effect2 = environment.get("weather_has_effect2", False)
+    g_battle_type_flags = environment.get("g_battle_type_flags", [])
+    count_alive_mons_in_battle_atk_side = environment.get(
+        "count_alive_mons_in_battle_atk_side", 1
+    )
+    count_alive_mons_in_battle_def_side = environment.get(
+        "count_alive_mons_in_battle_def_side", 1
+    )
+
     #     u32 i;
     #     s32 damage = 0;
     #     s32 damageHelper;
@@ -308,12 +321,12 @@ def calculate_base_damage(
     ):
         g_battle_move_power = (150 * g_battle_move_power) / 100
 
-    # TODO: where environment.g_current_move comes from?
-    if G_BATTLE_MOVES[environment.g_current_move]["effect"] == "EFFECT_EXPLOSION":
+    # TODO: where g_current_move comes from?
+    if G_BATTLE_MOVES[g_current_move]["effect"] == "EFFECT_EXPLOSION":
         defense /= 2
 
     if is_type_physical(type_):
-        if environment.g_crit_multiplier == 2:
+        if g_crit_multiplier == 2:
             if attacker.stat_stages["STAT_ATK"] > 0:
                 damage = apply_stat_mod(damage, attacker, attack, "STAT_ATK")
             else:
@@ -324,7 +337,7 @@ def calculate_base_damage(
         damage = damage * g_battle_move_power
         damage *= 2 * attacker.level / 5 + 2
 
-        if environment.g_crit_multiplier == 2:
+        if g_crit_multiplier == 2:
             if defender.stat_stages["STAT_DEF"] < 0:
                 damage_helper = apply_stat_mod(
                     damage_helper, defender, defense, "STAT_DEF"
@@ -340,19 +353,19 @@ def calculate_base_damage(
         if (attacker.status1 & STATUS1_BURN) and attacker.ability != "ABILITY_GUTS":
             damage /= 2
 
-        if "SIDE_STATUS_REFLECT" in side_status and environment.g_crit_multiplier == 1:
+        if "SIDE_STATUS_REFLECT" in side_status and g_crit_multiplier == 1:
             if (
-                "BATTLE_TYPE_DOUBLE" in environment.g_battle_type_flags
-                and environment.count_alive_mons_in_battle_def_side == 2
+                "BATTLE_TYPE_DOUBLE" in g_battle_type_flags
+                and count_alive_mons_in_battle_def_side == 2
             ):
                 damage = 2 * (damage / 3)
             else:
                 damage /= 2
 
         if (
-            "BATTLE_TYPE_DOUBLE" in environment.g_battle_type_flags
+            "BATTLE_TYPE_DOUBLE" in g_battle_type_flags
             and G_BATTLE_MOVES[move].target == "MOVE_TARGET_BOTH"
-            and environment.count_alive_mons_in_battle_def_side == 2
+            and count_alive_mons_in_battle_def_side == 2
         ):
             damage /= 2
 
@@ -363,7 +376,7 @@ def calculate_base_damage(
         damage = 0  # is ??? type. does 0 damage.
 
     if is_type_special(type_):
-        if environment.g_crit_multiplier == 2:
+        if g_crit_multiplier == 2:
             if attacker.stat_stages["STAT_SPATK"] > 0:
                 damage = apply_stat_mod(damage, attacker, sp_attack, "STAT_SPATK")
             else:
@@ -374,7 +387,7 @@ def calculate_base_damage(
         damage *= g_battle_move_power
         damage *= 2 * attacker.level / 5 + 2
 
-        if environment.g_crit_multiplier == 2:
+        if g_crit_multiplier == 2:
             if defender.stat_stages["STAT_SPDEF"] < 0:
                 damage_helper = apply_stat_mod(
                     damage_helper, defender, sp_defense, "STAT_SPDEF"
@@ -389,27 +402,24 @@ def calculate_base_damage(
         damage /= damage_helper
         damage /= 50
 
-        if (
-            "SIDE_STATUS_LIGHTSCREEN" in side_status
-            and environment.g_crit_multiplier == 1
-        ):
+        if "SIDE_STATUS_LIGHTSCREEN" in side_status and g_crit_multiplier == 1:
             if (
-                "BATTLE_TYPE_DOUBLE" in environment.g_battle_type_flags
-                and environment.count_alive_mons_in_battle_def_side == 2
+                "BATTLE_TYPE_DOUBLE" in g_battle_type_flags
+                and count_alive_mons_in_battle_def_side == 2
             ):
                 damage = 2 * (damage / 3)
             else:
                 damage /= 2
 
         if (
-            "BATTLE_TYPE_DOUBLE" in environment.g_battle_type_flags
+            "BATTLE_TYPE_DOUBLE" in g_battle_type_flags
             and G_BATTLE_MOVES[move].target == "MOVE_TARGET_BOTH"
-            and environment.count_alive_mons_in_battle_def_side == 2
+            and count_alive_mons_in_battle_def_side == 2
         ):
             damage /= 2
 
         # are effects of weather negated with cloud nine or air lock
-        if environment.weather_has_effect2:
+        if weather_has_effect2:
             # TODO: should be temporary or bug?
             if g_battle_weather == "B_WEATHER_RAIN_TEMPORARY":
                 if type_ == "TYPE_FIRE":
@@ -425,7 +435,7 @@ def calculate_base_damage(
                     | "B_WEATHER_SANDSTORM"
                     | "B_WEATHER_HAIL_TEMPORARY"
                 ]
-                and environment.g_current_move == "MOVE_SOLAR_BEAM"
+                and g_current_move == "MOVE_SOLAR_BEAM"
             ):
                 damage /= 2
 
