@@ -74,10 +74,10 @@ def is_type_special(type_):
 def calculate_base_damage(
     attacker: dict,
     defender: dict,
-    move: int,
+    move: str,
     side_status: int,
     power_override: int,
-    type_override: int,
+    type_override: str,
     battle_id_atk: int,
     battle_id_def: int,
 ):
