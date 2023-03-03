@@ -18,6 +18,7 @@ attacker = BattlePokemon(
         "STAT_SPDEF": 0,
     },
     type1="TYPE_WATER",
+    type2="TYPE_ROCK",
 )
 defender = BattlePokemon(
     level=10,
@@ -51,7 +52,10 @@ damage = calculate_base_damage(
     environment={"g_crit_multiplier": 1},
 )
 
-damage *= modulate_by_type_effectiveness(attacker.type1, defender.type1, defender.type2)
-
-
 print(f"damage: {damage}")
+
+type_efectiveness = modulate_by_type_effectiveness(
+    "TYPE_WATER", defender.type1, defender.type2
+)
+
+print(f"type_efectiveness: {type_efectiveness}")
