@@ -6,5 +6,5 @@ import random
 def apply_random_dmg_multiplier(damage):
     if not damage:
         return damage
-    damage = damage * random.randint(0, 15) / 100
+    damage = damage * random.randint(85, 100) / 100
     return max([1, damage])
