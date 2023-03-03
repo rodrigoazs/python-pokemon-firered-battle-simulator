@@ -1,7 +1,13 @@
-from dataclasses import dataclass
-from typing import List, Optional
+from dataclasses import dataclass, field
 
 from battle_moves import G_BATTLE_MOVES
+
+# TODO: remove bitwise operators
+STATUS1_BURN = 1 << 4
+SIDE_STATUS_REFLECT = 1 << 0
+
+# TODO: collect from external
+WEATHER_HAS_EFFECT2 = False
 
 
 @dataclass
@@ -12,7 +18,7 @@ class BattlePokemon:
     speed: int = 0
     sp_attack: int = 0
     sp_defense: int = 0
-    moves: List[int] = list[None, None, None, None]
+    moves: list[str] = list[None, None, None, None]
     # /*0x14*/ u32 hpIV:5;
     # /*0x14*/ u32 attackIV:5;
     # /*0x15*/ u32 defenseIV:5;
@@ -22,6 +28,16 @@ class BattlePokemon:
     # /*0x17*/ u32 isEgg:1;
     # /*0x17*/ u32 abilityNum:1;
     # /*0x18*/ s8 statStages[BATTLE_STATS_NO];
+    stat_stages: dict = field(
+        default_factory=lambda: {
+            "STAT_HP": 0,
+            "STAT_ATK": 0,
+            "STAT_DEF": 0,
+            "STAT_SPEED": 0,
+            "STAT_SPATK": 0,
+            "STAT_SPDEF": 0,
+        }
+    )
     # /*0x20*/ u8 ability;
     ability: str = None
     # /*0x21*/ u8 type1;
@@ -41,9 +57,15 @@ class BattlePokemon:
     # /*0x44*/ u32 experience;
     # /*0x48*/ u32 personality;
     # /*0x4C*/ u32 status1;
-    status1: int | None = None
+    status1: int = 0
     # /*0x50*/ u32 status2;
+    status2: int = 0
     # /*0x54*/ u32 otId;
+
+
+@dataclass
+class External:
+    g_crit_multiplier: int = 1
 
 
 def is_type_physical(type_):
@@ -73,6 +95,31 @@ def is_type_special(type_):
     ]
 
 
+G_STAT_STAGE_RATIOS = [
+    (10, 40),
+    (10, 35),
+    (10, 30),
+    (10, 25),
+    (10, 20),
+    (10, 15),
+    (10, 10),
+    (15, 10),
+    (20, 10),
+    (25, 10),
+    (30, 10),
+    (35, 10),
+    (40, 10),
+    (138, 174),
+    (108, 120),
+]
+
+
+def apply_stat_mod(var: int, mon: BattlePokemon, stat: int, stat_index: str):
+    var = stat * G_STAT_STAGE_RATIOS[mon.stat_stages[stat_index]][0]
+    var /= G_STAT_STAGE_RATIOS[mon.stat_stages[stat_index]][1]
+    return var
+
+
 # s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *defender, u32 move, u16 sideStatus, u16 powerOverride, u8 typeOverride, u8 battlerIdAtk, u8 battlerIdDef)
 def calculate_base_damage(
     attacker: dict,
@@ -83,6 +130,7 @@ def calculate_base_damage(
     type_override: str = None,
     battler_id_atk: int = None,
     battler_id_def: int = None,
+    external: External = External(),
 ):
     #     u32 i;
     #     s32 damage = 0;
@@ -95,6 +143,7 @@ def calculate_base_damage(
     #     u8 attackerHoldEffect;
     #     u8 attackerHoldEffectParam;
     damage = 0
+    damage_helper = 0
 
     g_battle_move_power = (
         power_override if power_override else G_BATTLE_MOVES[move]["power"]
@@ -246,85 +295,83 @@ def calculate_base_damage(
     if G_BATTLE_MOVES[g_current_move]["effect"] == "EFFECT_EXPLOSION":
         defense /= 2
 
-    #     if (IS_TYPE_PHYSICAL(type))
-    #     {
-    #         if (gCritMultiplier == 2)
-    #         {
-    #             if (attacker->statStages[STAT_ATK] > 6)
-    #                 APPLY_STAT_MOD(damage, attacker, attack, STAT_ATK)
-    #             else
-    #                 damage = attack;
-    #         }
-    #         else
-    #             APPLY_STAT_MOD(damage, attacker, attack, STAT_ATK)
-
-    #         damage = damage * gBattleMovePower;
-    #         damage *= (2 * attacker->level / 5 + 2);
-
-    #         if (gCritMultiplier == 2)
-    #         {
-    #             if (defender->statStages[STAT_DEF] < 6)
-    #                 APPLY_STAT_MOD(damageHelper, defender, defense, STAT_DEF)
-    #             else
-    #                 damageHelper = defense;
-    #         }
-    #         else
-    #             APPLY_STAT_MOD(damageHelper, defender, defense, STAT_DEF)
-
-    #         damage = damage / damageHelper;
-    #         damage /= 50;
-
-    #         if ((attacker->status1 & STATUS1_BURN) && attacker->ability != ABILITY_GUTS)
-    #             damage /= 2;
-
-    #         if ((sideStatus & SIDE_STATUS_REFLECT) && gCritMultiplier == 1)
-    #         {
-    #             if ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE) && CountAliveMonsInBattle(BATTLE_ALIVE_DEF_SIDE) == 2)
-    #                 damage = 2 * (damage / 3);
-    #             else
-    #                 damage /= 2;
-    #         }
-
-    #         if ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE) && gBattleMoves[move].target == 8 && CountAliveMonsInBattle(BATTLE_ALIVE_DEF_SIDE) == 2)
-    #             damage /= 2;
-
-    #         // moves always do at least 1 damage.
-    #         if (damage == 0)
-    #             damage = 1;
-    #     }
     if is_type_physical(type_):
-        pass
+        if external.g_crit_multiplier == 2:
+            if attacker.stat_stages["STAT_ATK"] > 6:
+                damage = apply_stat_mod(damage, attacker, attack, "STAT_ATK")
+            else:
+                damage = attack
+        else:
+            damage = apply_stat_mod(damage, attacker, attack, "STAT_ATK")
+
+        damage = damage * g_battle_move_power
+        damage *= 2 * attacker.level / 5 + 2
+
+        if external.g_crit_multiplier == 2:
+            if defender.stat_stages["STAT_DEF"] < 6:
+                damage_helper = apply_stat_mod(
+                    damage_helper, defender, defense, "STAT_DEF"
+                )
+            else:
+                damage_helper = defense
+        else:
+            damage_helper = apply_stat_mod(damage_helper, defender, defense, "STAT_DEF")
+
+        damage /= damage_helper
+        damage /= 50
+
+        if (attacker.status1 & STATUS1_BURN) and attacker.ability != "ABILITY_GUTS":
+            damage /= 2
+
+        # if (side_status & SIDE_STATUS_REFLECT) and external.g_crit_multiplier == 1:
+        #     if False:
+        #         damage = 2 * (damage / 3)
+        #     else:
+        #         damage /= 2
+
+        #     if ((sideStatus & SIDE_STATUS_REFLECT) && gCritMultiplier == 1)
+        #     {
+        #         if ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE) && CountAliveMonsInBattle(BATTLE_ALIVE_DEF_SIDE) == 2)
+        #             damage = 2 * (damage / 3);
+        #         else
+        #             damage /= 2;
+        #     }
+
+        #     if ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE) && gBattleMoves[move].target == 8 && CountAliveMonsInBattle(BATTLE_ALIVE_DEF_SIDE) == 2)
+        #         damage /= 2;
+
+        # moves always do at least 1 damage.
+        damage = max([1, damage])
 
     if type_ == "TYPE_MYSTERY":
         damage = 0  # is ??? type. does 0 damage.
 
-    #     if (IS_TYPE_SPECIAL(type))
-    #     {
-    #         if (gCritMultiplier == 2)
-    #         {
-    #             if (attacker->statStages[STAT_SPATK] > 6)
-    #                 APPLY_STAT_MOD(damage, attacker, spAttack, STAT_SPATK)
-    #             else
-    #                 damage = spAttack;
-    #         }
-    #         else
-    #             APPLY_STAT_MOD(damage, attacker, spAttack, STAT_SPATK)
+    if is_type_special(type_):
+        if external.g_crit_multiplier == 2:
+            if attacker.stat_stages["STAT_SPATK"] > 6:
+                damage = apply_stat_mod(damage, attacker, sp_attack, "STAT_SPATK")
+            else:
+                damage = sp_attack
+        else:
+            damage = apply_stat_mod(damage, attacker, sp_attack, "STAT_SPATK")
 
-    #         damage = damage * gBattleMovePower;
-    #         damage *= (2 * attacker->level / 5 + 2);
+        damage *= g_battle_move_power
+        damage *= 2 * attacker.level / 5 + 2
 
-    #         if (gCritMultiplier == 2)
-    #         {
-    #             if (defender->statStages[STAT_SPDEF] < 6)
-    #                 APPLY_STAT_MOD(damageHelper, defender, spDefense, STAT_SPDEF)
-    #             else
-    #                 damageHelper = spDefense;
-    #         }
-    #         else
-    #             APPLY_STAT_MOD(damageHelper, defender, spDefense, STAT_SPDEF)
+        if external.g_crit_multiplier == 2:
+            if defender.stat_stages["STAT_SPDEF"] < 6:
+                damage_helper = apply_stat_mod(
+                    damage_helper, defender, sp_defense, "STAT_SPDEF"
+                )
+            else:
+                damage_helper = sp_defense
+        else:
+            damage_helper = apply_stat_mod(
+                damage_helper, defender, sp_defense, "STAT_SPDEF"
+            )
 
-    #         damage = (damage / damageHelper);
-    #         damage /= 50;
+        damage /= damage_helper
+        damage /= 50
 
     #         if ((sideStatus & SIDE_STATUS_LIGHTSCREEN) && gCritMultiplier == 1)
     #         {
