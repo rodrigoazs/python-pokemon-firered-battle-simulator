@@ -1,15 +1,17 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
+from battle_moves import G_BATTLE_MOVES
+
 
 @dataclass
 class BattlePokemon:
     species: int | None = None
-    attack: int | None = None
-    defense: int | None = None
-    speed: int | None = None
-    sp_attack: int | None = None
-    sp_defense: int | None = None
+    attack: int = 0
+    defense: int = 0
+    speed: int = 0
+    sp_attack: int = 0
+    sp_defense: int = 0
     moves: List[int] = list[None, None, None, None]
     # /*0x14*/ u32 hpIV:5;
     # /*0x14*/ u32 attackIV:5;
@@ -28,6 +30,7 @@ class BattlePokemon:
     # /*0x24*/ u8 pp[4];
     # /*0x28*/ u16 hp;
     # /*0x2A*/ u8 level;
+    level: int = 1
     # /*0x2B*/ u8 friendship;
     # /*0x2C*/ u16 maxHP;
     max_hp: int | None = None
@@ -76,10 +79,10 @@ def calculate_base_damage(
     defender: dict,
     move: str,
     side_status: int,
-    power_override: int,
-    type_override: str,
-    battle_id_atk: int,
-    battle_id_def: int,
+    power_override: int = None,
+    type_override: str = None,
+    battler_id_atk: int = None,
+    battler_id_def: int = None,
 ):
     #     u32 i;
     #     s32 damage = 0;
@@ -91,6 +94,7 @@ def calculate_base_damage(
     #     u8 defenderHoldEffectParam;
     #     u8 attackerHoldEffect;
     #     u8 attackerHoldEffectParam;
+    damage = 0
 
     g_battle_move_power = (
         power_override if power_override else G_BATTLE_MOVES[move]["power"]
@@ -235,6 +239,10 @@ def calculate_base_damage(
         g_battle_move_power = (150 * g_battle_move_power) / 100
     #     if (gBattleMoves[gCurrentMove].effect == EFFECT_EXPLOSION)
     #         defense /= 2;
+
+    # TODO: where g_current_move comes from?
+    g_current_move = "MOVE_NONE"
+    #################
     if G_BATTLE_MOVES[g_current_move]["effect"] == "EFFECT_EXPLOSION":
         defense /= 2
 
@@ -284,6 +292,8 @@ def calculate_base_damage(
     #         if (damage == 0)
     #             damage = 1;
     #     }
+    if is_type_physical(type_):
+        pass
 
     if type_ == "TYPE_MYSTERY":
         damage = 0  # is ??? type. does 0 damage.

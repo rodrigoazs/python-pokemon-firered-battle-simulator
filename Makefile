@@ -20,3 +20,6 @@ format:
 check:
 	pipenv run isort . -c
 	pipenv run black . --check
+
+run:
+	pipenv run python simulate.py

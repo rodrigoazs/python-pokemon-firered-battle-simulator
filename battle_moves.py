@@ -213,7 +213,7 @@ G_BATTLE_MOVES = {
         ],
     },
     "MOVE_SWORDS_DANCE": {
-        "effect": EFFECT_ATTACK_UP_2,
+        "effect": "EFFECT_ATTACK_UP_2",
         "power": 0,
         "type": "TYPE_NORMAL",
         "accuracy": 0,
@@ -1379,7 +1379,7 @@ G_BATTLE_MOVES = {
         "flags": "FLAG_SNATCH_AFFECTED",
     },
     "MOVE_AGILITY": {
-        "effect": EFFECT_SPEED_UP_2,
+        "effect": "EFFECT_SPEED_UP_2",
         "power": 0,
         "type": "TYPE_PSYCHIC",
         "accuracy": 0,
@@ -1459,7 +1459,7 @@ G_BATTLE_MOVES = {
         "flags": "FLAG_PROTECT_AFFECTED",
     },
     "MOVE_SCREECH": {
-        "effect": EFFECT_DEFENSE_DOWN_2,
+        "effect": "EFFECT_DEFENSE_DOWN_2",
         "power": 0,
         "type": "TYPE_NORMAL",
         "accuracy": 85,
@@ -1570,7 +1570,7 @@ G_BATTLE_MOVES = {
         "flags": "FLAG_SNATCH_AFFECTED",
     },
     "MOVE_BARRIER": {
-        "effect": EFFECT_DEFENSE_UP_2,
+        "effect": "EFFECT_DEFENSE_UP_2",
         "power": 0,
         "type": "TYPE_PSYCHIC",
         "accuracy": 0,
@@ -1844,7 +1844,7 @@ G_BATTLE_MOVES = {
         ],
     },
     "MOVE_AMNESIA": {
-        "effect": EFFECT_SPECIAL_DEFENSE_UP_2,
+        "effect": "EFFECT_SPECIAL_DEFENSE_UP_2",
         "power": 0,
         "type": "TYPE_PSYCHIC",
         "accuracy": 0,
@@ -2091,7 +2091,7 @@ G_BATTLE_MOVES = {
         "flags": 0,
     },
     "MOVE_ACID_ARMOR": {
-        "effect": EFFECT_DEFENSE_UP_2,
+        "effect": "EFFECT_DEFENSE_UP_2",
         "power": 0,
         "type": "TYPE_POISON",
         "accuracy": 0,
@@ -2428,7 +2428,7 @@ G_BATTLE_MOVES = {
         ],
     },
     "MOVE_CONVERSION_2": {
-        "effect": EFFECT_CONVERSION_2,
+        "effect": "EFFECT_CONVERSION_2",
         "power": 0,
         "type": "TYPE_NORMAL",
         "accuracy": 100,
@@ -2454,7 +2454,7 @@ G_BATTLE_MOVES = {
         ],
     },
     "MOVE_COTTON_SPORE": {
-        "effect": EFFECT_SPEED_DOWN_2,
+        "effect": "EFFECT_SPEED_DOWN_2",
         "power": 0,
         "type": "TYPE_GRASS",
         "accuracy": 85,
@@ -2534,7 +2534,7 @@ G_BATTLE_MOVES = {
         ],
     },
     "MOVE_SCARY_FACE": {
-        "effect": EFFECT_SPEED_DOWN_2,
+        "effect": "EFFECT_SPEED_DOWN_2",
         "power": 0,
         "type": "TYPE_NORMAL",
         "accuracy": 90,
@@ -2775,7 +2775,7 @@ G_BATTLE_MOVES = {
         "flags": 0,
     },
     "MOVE_CHARM": {
-        "effect": EFFECT_ATTACK_DOWN_2,
+        "effect": "EFFECT_ATTACK_DOWN_2",
         "power": 0,
         "type": "TYPE_NORMAL",
         "accuracy": 100,
@@ -3957,7 +3957,7 @@ G_BATTLE_MOVES = {
         "flags": "FLAG_SNATCH_AFFECTED",
     },
     "MOVE_TAIL_GLOW": {
-        "effect": EFFECT_SPECIAL_ATTACK_UP_2,
+        "effect": "EFFECT_SPECIAL_ATTACK_UP_2",
         "power": 0,
         "type": "TYPE_BUG",
         "accuracy": 100,
@@ -3990,7 +3990,7 @@ G_BATTLE_MOVES = {
         "flags": ["FLAG_PROTECT_AFFECTED", "FLAG_MIRROR_MOVE_AFFECTED"],
     },
     "MOVE_FEATHER_DANCE": {
-        "effect": EFFECT_ATTACK_DOWN_2,
+        "effect": "EFFECT_ATTACK_DOWN_2",
         "power": 0,
         "type": "TYPE_FLYING",
         "accuracy": 100,
@@ -4212,7 +4212,7 @@ G_BATTLE_MOVES = {
         "flags": "FLAG_SNATCH_AFFECTED",
     },
     "MOVE_FAKE_TEARS": {
-        "effect": EFFECT_SPECIAL_DEFENSE_DOWN_2,
+        "effect": "EFFECT_SPECIAL_DEFENSE_DOWN_2",
         "power": 0,
         "type": "TYPE_DARK",
         "accuracy": 100,
@@ -4295,7 +4295,7 @@ G_BATTLE_MOVES = {
         ],
     },
     "MOVE_METAL_SOUND": {
-        "effect": EFFECT_SPECIAL_DEFENSE_DOWN_2,
+        "effect": "EFFECT_SPECIAL_DEFENSE_DOWN_2",
         "power": 0,
         "type": "TYPE_STEEL",
         "accuracy": 85,
@@ -4508,7 +4508,7 @@ G_BATTLE_MOVES = {
         ],
     },
     "MOVE_IRON_DEFENSE": {
-        "effect": EFFECT_DEFENSE_UP_2,
+        "effect": "EFFECT_DEFENSE_UP_2",
         "power": 0,
         "type": "TYPE_STEEL",
         "accuracy": 0,
