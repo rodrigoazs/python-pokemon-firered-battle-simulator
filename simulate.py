@@ -10,7 +10,7 @@ attacker = BattlePokemon(
     ability="ABILITY_TORRENT",
     stat_stages={
         "STAT_HP": 0,
-        "STAT_ATK": -6,
+        "STAT_ATK": 0,
         "STAT_DEF": 0,
         "STAT_SPEED": 0,
         "STAT_SPATK": 0,

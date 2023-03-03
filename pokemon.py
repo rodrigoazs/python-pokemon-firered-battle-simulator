@@ -2,30 +2,6 @@ from dataclasses import dataclass, field
 
 from battle_moves import G_BATTLE_MOVES
 
-# TODO: remove bitwise operators
-STATUS1_BURN = 1 << 4
-SIDE_STATUS_REFLECT = 1 << 0
-
-# Battle Weather flags
-# TODO: Not necessary
-B_WEATHER_RAIN_TEMPORARY = False
-B_WEATHER_RAIN_DOWNPOUR = False
-B_WEATHER_RAIN_PERMANENT = False
-B_WEATHER_RAIN = (
-    B_WEATHER_RAIN_TEMPORARY or B_WEATHER_RAIN_DOWNPOUR or B_WEATHER_RAIN_PERMANENT
-)
-B_WEATHER_SANDSTORM_TEMPORARY = False
-B_WEATHER_SANDSTORM_PERMANENT = False
-B_WEATHER_SANDSTORM = B_WEATHER_SANDSTORM_TEMPORARY or B_WEATHER_SANDSTORM_PERMANENT
-B_WEATHER_SUN_TEMPORARY = False
-B_WEATHER_SUN_PERMANENT = False
-B_WEATHER_SUN = B_WEATHER_SUN_TEMPORARY or B_WEATHER_SUN_PERMANENT
-B_WEATHER_HAIL_TEMPORARY = False
-B_WEATHER_HAIL = B_WEATHER_HAIL_TEMPORARY
-B_WEATHER_ANY = B_WEATHER_RAIN or B_WEATHER_SANDSTORM or B_WEATHER_SUN or B_WEATHER_HAIL
-
-g_battle_weather = None
-
 
 @dataclass
 class BattlePokemon:
@@ -75,9 +51,9 @@ class BattlePokemon:
     # /*0x44*/ u32 experience;
     # /*0x48*/ u32 personality;
     # /*0x4C*/ u32 status1;
-    status1: int = 0
+    status1: list[str] = field(default_factory=lambda: [])
     # /*0x50*/ u32 status2;
-    status2: int = 0
+    status2: list[str] = field(default_factory=lambda: [])
     # /*0x54*/ u32 otId;
 
 
@@ -162,6 +138,7 @@ def calculate_base_damage(
     g_current_move = environment.get("g_current_move", "MOVE_NONE")
     g_crit_multiplier = environment.get("g_crit_multiplier", 1)
     weather_has_effect2 = environment.get("weather_has_effect2", False)
+    g_battle_weather = environment.get("g_battle_weather", None)
     g_battle_type_flags = environment.get("g_battle_type_flags", [])
     count_alive_mons_in_battle_atk_side = environment.get(
         "count_alive_mons_in_battle_atk_side", 1
@@ -350,7 +327,7 @@ def calculate_base_damage(
         damage /= damage_helper
         damage /= 50
 
-        if (attacker.status1 & STATUS1_BURN) and attacker.ability != "ABILITY_GUTS":
+        if ("STATUS1_BURN" in attacker.status1) and attacker.ability != "ABILITY_GUTS":
             damage /= 2
 
         if "SIDE_STATUS_REFLECT" in side_status and g_crit_multiplier == 1:
@@ -420,8 +397,8 @@ def calculate_base_damage(
 
         # are effects of weather negated with cloud nine or air lock
         if weather_has_effect2:
-            # TODO: should be temporary or bug?
-            if g_battle_weather == "B_WEATHER_RAIN_TEMPORARY":
+            # TODO: should be temporary or was a bug?
+            if g_battle_weather == "B_WEATHER_RAIN":
                 if type_ == "TYPE_FIRE":
                     damage /= 2
                 elif type_ == "TYPE_WATER":
@@ -429,14 +406,10 @@ def calculate_base_damage(
 
             # TODO: should be temporary or bug?
             if (
-                g_battle_weather
-                in [
-                    "B_WEATHER_RAIN"
-                    | "B_WEATHER_SANDSTORM"
-                    | "B_WEATHER_HAIL_TEMPORARY"
-                ]
-                and g_current_move == "MOVE_SOLAR_BEAM"
-            ):
+                g_battle_weather == "B_WEATHER_RAIN"
+                or g_battle_weather == "B_WEATHER_SANDSTORM"
+                or g_battle_weather == "B_WEATHER_HAIL"
+            ) and g_current_move == "MOVE_SOLAR_BEAM":
                 damage /= 2
 
             if g_battle_weather == "B_WEATHER_SUN":
