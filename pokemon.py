@@ -35,7 +35,9 @@ class BattlePokemon:
     # /*0x20*/ u8 ability;
     ability: str = None
     # /*0x21*/ u8 type1;
+    type1: str = ("TYPE_NORMAL",)
     # /*0x22*/ u8 type2;
+    type2: str = ("TYPE_NORMAL",)
     # /*0x23*/ u8 unknown;
     # /*0x24*/ u8 pp[4];
     # /*0x28*/ u16 hp;

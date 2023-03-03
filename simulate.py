@@ -1,4 +1,5 @@
-from pokemon import *
+from battle_ai_switch_items import modulate_by_type_effectiveness
+from pokemon import BattlePokemon, calculate_base_damage
 
 attacker = BattlePokemon(
     level=10,
@@ -16,6 +17,7 @@ attacker = BattlePokemon(
         "STAT_SPATK": 0,
         "STAT_SPDEF": 0,
     },
+    type1="TYPE_WATER",
 )
 defender = BattlePokemon(
     level=10,
@@ -33,6 +35,8 @@ defender = BattlePokemon(
         "STAT_SPATK": 0,
         "STAT_SPDEF": 0,
     },
+    type1="TYPE_FIRE",
+    type2="TYPE_ROCK",
 )
 
 damage = calculate_base_damage(
@@ -46,5 +50,8 @@ damage = calculate_base_damage(
     battler_id_def=None,
     environment={"g_crit_multiplier": 1},
 )
+
+damage *= modulate_by_type_effectiveness(attacker.type1, defender.type1, defender.type2)
+
 
 print(f"damage: {damage}")
