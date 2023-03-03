@@ -57,16 +57,6 @@ class BattlePokemon:
     # /*0x54*/ u32 otId;
 
 
-@dataclass
-class Environment:
-    g_current_move: str = "MOVE_NONE"
-    g_crit_multiplier: int = 1
-    weather_has_effect2: bool = False
-    g_battle_type_flags: list[str] = field(default_factory=lambda: [])
-    count_alive_mons_in_battle_atk_side: int = 1
-    count_alive_mons_in_battle_def_side: int = 1
-
-
 def is_type_physical(type_):
     return type_ in [
         "TYPE_NORMAL",
@@ -404,7 +394,7 @@ def calculate_base_damage(
                 elif type_ == "TYPE_WATER":
                     damage = (15 * damage) / 10
 
-            # TODO: should be temporary or bug?
+            # TODO: should be temporary or was a bug?
             if (
                 g_battle_weather == "B_WEATHER_RAIN"
                 or g_battle_weather == "B_WEATHER_SANDSTORM"
