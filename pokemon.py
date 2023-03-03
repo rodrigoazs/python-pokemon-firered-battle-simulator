@@ -6,8 +6,25 @@ from battle_moves import G_BATTLE_MOVES
 STATUS1_BURN = 1 << 4
 SIDE_STATUS_REFLECT = 1 << 0
 
-# TODO: collect from external
-WEATHER_HAS_EFFECT2 = False
+# Battle Weather flags
+# TODO: Not necessary
+B_WEATHER_RAIN_TEMPORARY = False
+B_WEATHER_RAIN_DOWNPOUR = False
+B_WEATHER_RAIN_PERMANENT = False
+B_WEATHER_RAIN = (
+    B_WEATHER_RAIN_TEMPORARY or B_WEATHER_RAIN_DOWNPOUR or B_WEATHER_RAIN_PERMANENT
+)
+B_WEATHER_SANDSTORM_TEMPORARY = False
+B_WEATHER_SANDSTORM_PERMANENT = False
+B_WEATHER_SANDSTORM = B_WEATHER_SANDSTORM_TEMPORARY or B_WEATHER_SANDSTORM_PERMANENT
+B_WEATHER_SUN_TEMPORARY = False
+B_WEATHER_SUN_PERMANENT = False
+B_WEATHER_SUN = B_WEATHER_SUN_TEMPORARY or B_WEATHER_SUN_PERMANENT
+B_WEATHER_HAIL_TEMPORARY = False
+B_WEATHER_HAIL = B_WEATHER_HAIL_TEMPORARY
+B_WEATHER_ANY = B_WEATHER_RAIN or B_WEATHER_SANDSTORM or B_WEATHER_SUN or B_WEATHER_HAIL
+
+g_battle_weather = None
 
 
 @dataclass
@@ -29,9 +46,10 @@ class BattlePokemon:
     # /*0x17*/ u32 abilityNum:1;
     # /*0x18*/ s8 statStages[BATTLE_STATS_NO];
     stat_stages: dict = field(
+        # TODO: ranges from -6 to 6? check with G_STAT_STAGE_RATIOS
         default_factory=lambda: {
             "STAT_HP": 0,
-            "STAT_ATK": 0,
+            "STAT_ATK": -6,
             "STAT_DEF": 0,
             "STAT_SPEED": 0,
             "STAT_SPATK": 0,
@@ -64,8 +82,13 @@ class BattlePokemon:
 
 
 @dataclass
-class External:
+class Environment:
+    g_current_move: str = "MOVE_NONE"
     g_crit_multiplier: int = 1
+    weather_has_effect2: bool = False
+    g_battle_type_flags: list[str] = field(default_factory=lambda: [])
+    count_alive_mons_in_battle_atk_side: int = 1
+    count_alive_mons_in_battle_def_side: int = 1
 
 
 def is_type_physical(type_):
@@ -115,8 +138,8 @@ G_STAT_STAGE_RATIOS = [
 
 
 def apply_stat_mod(var: int, mon: BattlePokemon, stat: int, stat_index: str):
-    var = stat * G_STAT_STAGE_RATIOS[mon.stat_stages[stat_index]][0]
-    var /= G_STAT_STAGE_RATIOS[mon.stat_stages[stat_index]][1]
+    var = stat * G_STAT_STAGE_RATIOS[mon.stat_stages[stat_index] + 6][0]
+    var /= G_STAT_STAGE_RATIOS[mon.stat_stages[stat_index] + 6][1]
     return var
 
 
@@ -125,12 +148,12 @@ def calculate_base_damage(
     attacker: dict,
     defender: dict,
     move: str,
-    side_status: int,
+    side_status: list[str] = [],
     power_override: int = None,
     type_override: str = None,
     battler_id_atk: int = None,
     battler_id_def: int = None,
-    external: External = External(),
+    environment: Environment = Environment(),
 ):
     #     u32 i;
     #     s32 damage = 0;
@@ -149,10 +172,6 @@ def calculate_base_damage(
         power_override if power_override else G_BATTLE_MOVES[move]["power"]
     )
 
-    #     if (!typeOverride)
-    #         type = gBattleMoves[move].type;
-    #     else
-    #         type = typeOverride & 0x3F;
     type_ = type_override if type_override else G_BATTLE_MOVES[move]["type"]
 
     attack = attacker.attack
@@ -286,17 +305,13 @@ def calculate_base_damage(
         and attacker.hp <= (attacker.max_hp / 3)
     ):
         g_battle_move_power = (150 * g_battle_move_power) / 100
-    #     if (gBattleMoves[gCurrentMove].effect == EFFECT_EXPLOSION)
-    #         defense /= 2;
 
-    # TODO: where g_current_move comes from?
-    g_current_move = "MOVE_NONE"
-    #################
-    if G_BATTLE_MOVES[g_current_move]["effect"] == "EFFECT_EXPLOSION":
+    # TODO: where environment.g_current_move comes from?
+    if G_BATTLE_MOVES[environment.g_current_move]["effect"] == "EFFECT_EXPLOSION":
         defense /= 2
 
     if is_type_physical(type_):
-        if external.g_crit_multiplier == 2:
+        if environment.g_crit_multiplier == 2:
             if attacker.stat_stages["STAT_ATK"] > 6:
                 damage = apply_stat_mod(damage, attacker, attack, "STAT_ATK")
             else:
@@ -307,7 +322,7 @@ def calculate_base_damage(
         damage = damage * g_battle_move_power
         damage *= 2 * attacker.level / 5 + 2
 
-        if external.g_crit_multiplier == 2:
+        if environment.g_crit_multiplier == 2:
             if defender.stat_stages["STAT_DEF"] < 6:
                 damage_helper = apply_stat_mod(
                     damage_helper, defender, defense, "STAT_DEF"
@@ -323,22 +338,21 @@ def calculate_base_damage(
         if (attacker.status1 & STATUS1_BURN) and attacker.ability != "ABILITY_GUTS":
             damage /= 2
 
-        # if (side_status & SIDE_STATUS_REFLECT) and external.g_crit_multiplier == 1:
-        #     if False:
-        #         damage = 2 * (damage / 3)
-        #     else:
-        #         damage /= 2
+        if "SIDE_STATUS_REFLECT" in side_status and environment.g_crit_multiplier == 1:
+            if (
+                "BATTLE_TYPE_DOUBLE" in environment.g_battle_type_flags
+                and environment.count_alive_mons_in_battle_def_side == 2
+            ):
+                damage = 2 * (damage / 3)
+            else:
+                damage /= 2
 
-        #     if ((sideStatus & SIDE_STATUS_REFLECT) && gCritMultiplier == 1)
-        #     {
-        #         if ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE) && CountAliveMonsInBattle(BATTLE_ALIVE_DEF_SIDE) == 2)
-        #             damage = 2 * (damage / 3);
-        #         else
-        #             damage /= 2;
-        #     }
-
-        #     if ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE) && gBattleMoves[move].target == 8 && CountAliveMonsInBattle(BATTLE_ALIVE_DEF_SIDE) == 2)
-        #         damage /= 2;
+        if (
+            "BATTLE_TYPE_DOUBLE" in environment.g_battle_type_flags
+            and G_BATTLE_MOVES[move].target == "MOVE_TARGET_BOTH"
+            and environment.count_alive_mons_in_battle_def_side == 2
+        ):
+            damage /= 2
 
         # moves always do at least 1 damage.
         damage = max([1, damage])
@@ -347,7 +361,7 @@ def calculate_base_damage(
         damage = 0  # is ??? type. does 0 damage.
 
     if is_type_special(type_):
-        if external.g_crit_multiplier == 2:
+        if environment.g_crit_multiplier == 2:
             if attacker.stat_stages["STAT_SPATK"] > 6:
                 damage = apply_stat_mod(damage, attacker, sp_attack, "STAT_SPATK")
             else:
@@ -358,7 +372,7 @@ def calculate_base_damage(
         damage *= g_battle_move_power
         damage *= 2 * attacker.level / 5 + 2
 
-        if external.g_crit_multiplier == 2:
+        if environment.g_crit_multiplier == 2:
             if defender.stat_stages["STAT_SPDEF"] < 6:
                 damage_helper = apply_stat_mod(
                     damage_helper, defender, sp_defense, "STAT_SPDEF"
@@ -373,53 +387,53 @@ def calculate_base_damage(
         damage /= damage_helper
         damage /= 50
 
-    #         if ((sideStatus & SIDE_STATUS_LIGHTSCREEN) && gCritMultiplier == 1)
-    #         {
-    #             if ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE) && CountAliveMonsInBattle(BATTLE_ALIVE_DEF_SIDE) == 2)
-    #                 damage = 2 * (damage / 3);
-    #             else
-    #                 damage /= 2;
-    #         }
+        if (
+            "SIDE_STATUS_LIGHTSCREEN" in side_status
+            and environment.g_crit_multiplier == 1
+        ):
+            if (
+                "BATTLE_TYPE_DOUBLE" in environment.g_battle_type_flags
+                and environment.count_alive_mons_in_battle_def_side == 2
+            ):
+                damage = 2 * (damage / 3)
+            else:
+                damage /= 2
 
-    #         if ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE) && gBattleMoves[move].target == 8 && CountAliveMonsInBattle(BATTLE_ALIVE_DEF_SIDE) == 2)
-    #             damage /= 2;
+        if (
+            "BATTLE_TYPE_DOUBLE" in environment.g_battle_type_flags
+            and G_BATTLE_MOVES[move].target == "MOVE_TARGET_BOTH"
+            and environment.count_alive_mons_in_battle_def_side == 2
+        ):
+            damage /= 2
 
-    #         // are effects of weather negated with cloud nine or air lock
-    #         if (WEATHER_HAS_EFFECT2)
-    #         {
-    #             if (gBattleWeather & B_WEATHER_RAIN_TEMPORARY)
-    #             {
-    #                 switch (type)
-    #                 {
-    #                 case TYPE_FIRE:
-    #                     damage /= 2;
-    #                     break;
-    #                 case TYPE_WATER:
-    #                     damage = (15 * damage) / 10;
-    #                     break;
-    #                 }
-    #             }
+        # are effects of weather negated with cloud nine or air lock
+        if environment.weather_has_effect2:
+            # TODO: should be temporary or bug?
+            if g_battle_weather == "B_WEATHER_RAIN_TEMPORARY":
+                if type_ == "TYPE_FIRE":
+                    damage /= 2
+                elif type_ == "TYPE_WATER":
+                    damage = (15 * damage) / 10
 
-    #             // any weather except sun weakens solar beam
-    #             if ((gBattleWeather & (B_WEATHER_RAIN | B_WEATHER_SANDSTORM | B_WEATHER_HAIL_TEMPORARY)) && gCurrentMove == MOVE_SOLAR_BEAM)
-    #                 damage /= 2;
+            # TODO: should be temporary or bug?
+            if (
+                g_battle_weather
+                in [
+                    "B_WEATHER_RAIN"
+                    | "B_WEATHER_SANDSTORM"
+                    | "B_WEATHER_HAIL_TEMPORARY"
+                ]
+                and environment.g_current_move == "MOVE_SOLAR_BEAM"
+            ):
+                damage /= 2
 
-    #             // sunny
-    #             if (gBattleWeather & B_WEATHER_SUN)
-    #             {
-    #                 switch (type)
-    #                 {
-    #                 case TYPE_FIRE:
-    #                     damage = (15 * damage) / 10;
-    #                     break;
-    #                 case TYPE_WATER:
-    #                     damage /= 2;
-    #                     break;
-    #                 }
-    #             }
-    #         }
+            if g_battle_weather == "B_WEATHER_SUN":
+                if type_ == "TYPE_FIRE":
+                    damage = (15 * damage) / 10
+                elif type_ == "TYPE_WATER":
+                    damage /= 2
 
-    #         // flash fire triggered
+            # flash fire triggered
     #         if ((gBattleResources->flags->flags[battlerIdAtk] & RESOURCE_FLAG_FLASH_FIRE) && type == TYPE_FIRE)
     #             damage = (15 * damage) / 10;
     #     }
