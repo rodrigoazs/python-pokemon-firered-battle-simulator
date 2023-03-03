@@ -43,6 +43,32 @@ class BattlePokemon:
     # /*0x54*/ u32 otId;
 
 
+def is_type_physical(type_):
+    return type_ in [
+        "TYPE_NORMAL",
+        "TYPE_FIGHTING",
+        "TYPE_FLYING",
+        "TYPE_POISON",
+        "TYPE_GROUND",
+        "TYPE_ROCK",
+        "TYPE_BUG",
+        "TYPE_GHOST",
+        "TYPE_STEEL",
+    ]
+
+
+def is_type_special(type_):
+    return type_ in [
+        "TYPE_WATER",
+        "TYPE_GRASS",
+        "TYPE_ELECTRIC",
+        "TYPE_PSYCHIC",
+        "TYPE_ICE",
+        "TYPE_DRAGON",
+        "TYPE_DARK",
+    ]
+
+
 # s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *defender, u32 move, u16 sideStatus, u16 powerOverride, u8 typeOverride, u8 battlerIdAtk, u8 battlerIdDef)
 def calculate_base_damage(
     attacker: dict,
@@ -73,7 +99,6 @@ def calculate_base_damage(
     #         type = gBattleMoves[move].type;
     #     else
     #         type = typeOverride & 0x3F;
-
     type_ = type_override if type_override else G_BATTLE_MOVES[move]["type"]
 
     attack = attacker.attack
@@ -103,8 +128,6 @@ def calculate_base_damage(
     #         defenderHoldEffectParam = ItemId_GetHoldEffectParam(defender->item);
     #     }
 
-    #     if (attacker->ability == ABILITY_HUGE_POWER || attacker->ability == ABILITY_PURE_POWER)
-    #         attack *= 2;
     if (
         attacker.ability == "ABILITY_HUGE_POWER"
         or attacker.ability == "ABILITY_PURE_POWER"
@@ -166,10 +189,10 @@ def calculate_base_damage(
     #         defense *= 2;
     #     if (attackerHoldEffect == HOLD_EFFECT_THICK_CLUB && (attacker->species == SPECIES_CUBONE || attacker->species == SPECIES_MAROWAK))
     #         attack *= 2;
-    #     if (defender->ability == ABILITY_THICK_FAT && (type == TYPE_FIRE || type == TYPE_ICE))
-    #         spAttack /= 2;
-    #     if (attacker->ability == ABILITY_HUSTLE)
-    #         attack = (150 * attack) / 100;
+    if defender.ability == "ABILITY_THICK_FAT" and (
+        type_ == "TYPE_FIRE" or type_ == "TYPE_ICE"
+    ):
+        sp_attack /= 2
     if attacker.ability == "ABILITY_HUSTLE":
         attack = (150 * attack) / 100
 
