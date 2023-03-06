@@ -113,7 +113,6 @@ def apply_stat_mod(var: int, mon: BattlePokemon, stat: int, stat_index: str):
     return var
 
 
-# s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *defender, u32 move, u16 sideStatus, u16 powerOverride, u8 typeOverride, u8 battlerIdAtk, u8 battlerIdDef)
 def calculate_base_damage(
     attacker: dict,
     defender: dict,
@@ -139,16 +138,6 @@ def calculate_base_damage(
         "count_alive_mons_in_battle_def_side", 1
     )
 
-    #     u32 i;
-    #     s32 damage = 0;
-    #     s32 damageHelper;
-    #     u8 type;
-    #     u16 attack, defense;
-    #     u16 spAttack, spDefense;
-    #     u8 defenderHoldEffect;
-    #     u8 defenderHoldEffectParam;
-    #     u8 attackerHoldEffect;
-    #     u8 attackerHoldEffectParam;
     damage = 0
     damage_helper = 0
 
