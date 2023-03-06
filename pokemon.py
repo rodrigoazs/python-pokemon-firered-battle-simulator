@@ -319,6 +319,7 @@ def calculate_base_damage(
         damage /= damage_helper
         damage /= 50
 
+        # -- BURN --
         if ("STATUS1_BURN" in attacker.status1) and attacker.ability != "ABILITY_GUTS":
             damage *= 0.5
 
@@ -412,8 +413,9 @@ def calculate_base_damage(
                 elif type_ == "TYPE_WATER":
                     damage *= 0.5
 
+            # -- FF --
             # flash fire triggered
-    #         if ((gBattleResources->flags->flags[battlerIdAtk] & RESOURCE_FLAG_FLASH_FIRE) && type == TYPE_FIRE)
-    #             damage = (15 * damage) / 10;
-    #     }
+            # if ((gBattleResources->flags->flags[battlerIdAtk] & RESOURCE_FLAG_FLASH_FIRE) && type == TYPE_FIRE)
+            #     damage = (15 * damage) / 10;
+            # }
     return damage + 2

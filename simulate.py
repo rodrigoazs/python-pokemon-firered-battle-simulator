@@ -55,12 +55,14 @@ damage = calculate_base_damage(
 
 print(f"damage: {damage}")
 
+# -- TYPE --
 type_efectiveness = modulate_by_type_effectiveness(
     "TYPE_NORMAL", defender.type1, defender.type2
 )
 
 print(f"type_efectiveness: {type_efectiveness}")
 
+# -- STAB --
 stab = modulate_by_stab(attacker, "TYPE_NORMAL")
 
 print("final: {}".format(damage * type_efectiveness * stab))
