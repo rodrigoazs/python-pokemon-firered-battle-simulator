@@ -1,6 +1,6 @@
-from battle_ai_switch_items import modulate_by_type_effectiveness
-from battle_script_commands import modulate_by_stab
-from pokemon import BattlePokemon, calculate_base_damage
+from core.battle_ai_switch_items import modulate_by_type_effectiveness
+from core.battle_script_commands import modulate_by_stab
+from core.pokemon import BattlePokemon, calculate_base_damage
 
 attacker = BattlePokemon(
     level=10,

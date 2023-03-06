@@ -1,8 +1,7 @@
 import random
 
-from battler_moves import G_BATTLE_MOVES
-
-from pokemon import BattlePokemon
+from core.battle_moves import G_BATTLE_MOVES
+from core.pokemon import BattlePokemon
 
 # 20 is ×2.0 TYPE_MUL_SUPER_EFFECTIVE
 # 10 is ×1.0 TYPE_MUL_NORMAL

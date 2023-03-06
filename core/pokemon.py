@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from battle_moves import G_BATTLE_MOVES
+from core.battle_moves import G_BATTLE_MOVES
 
 
 @dataclass

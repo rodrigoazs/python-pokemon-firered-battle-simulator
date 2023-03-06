@@ -1,6 +1,6 @@
 import random
 
-from pokemon import BattlePokemon
+from core.pokemon import BattlePokemon
 
 
 # Multiplies the damage by a random factor between 85% to 100% inclusive
