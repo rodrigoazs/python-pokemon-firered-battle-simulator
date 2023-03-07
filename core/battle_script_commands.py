@@ -7,19 +7,19 @@ MIN_STAT_STAGE = -6
 MAX_STAT_STAGE = 6
 
 S_ACCURACY_STAGE_RATIOS = [
-    (33, 100),  # -6
-    (36, 100),  # -5
-    (43, 100),  # -4
-    (50, 100),  # -3
-    (60, 100),  # -2
-    (75, 100),  # -1
-    (1, 1),  #  0
-    (133, 100),  # +1
-    (166, 100),  # +2
-    (2, 1),  # +3
-    (233, 100),  # +4
-    (133, 50),  # +5
-    (3, 1),  # +6
+    0.33,  # -6
+    0.36,  # -5
+    0.43,  # -4
+    0.5,  # -3
+    0.6,  # -2
+    0.75,  # -1
+    1.0,  #  0
+    1.33,  # +1
+    1.66,  # +2
+    2.0,  # +3
+    2.33,  # +4
+    2.66,  # +5
+    3.0,  # +6
 ]
 
 # Multiplies the damage by a random factor between 85% to 100% inclusive
@@ -94,7 +94,7 @@ def cmd_accuracy_check(attacker: BattlePokemon, target: BattlePokemon, move: str
         acc = attacker.stat_stages["STAT_ACC"]
         buff = acc + target.stat_stages["STAT_EVASION"]
 
-    buff = int(min([max([MIN_STAT_STAGE, buff]), MAX_STAT_STAGE]))
+    buff = min([max([MIN_STAT_STAGE, buff]), MAX_STAT_STAGE])
 
     move_acc = G_BATTLE_MOVES[move]["accuracy"]
 
@@ -106,9 +106,7 @@ def cmd_accuracy_check(attacker: BattlePokemon, target: BattlePokemon, move: str
     ):
         move_acc = 50
 
-    calc = (
-        move_acc * S_ACCURACY_STAGE_RATIOS[buff][0] / S_ACCURACY_STAGE_RATIOS[buff][1]
-    )
+    calc = move_acc * S_ACCURACY_STAGE_RATIOS[int(buff)]
 
     if attacker.ability == "ABILITY_COMPOUND_EYES":
         calc = calc * 1.3  # 1.3 compound eyes boost
