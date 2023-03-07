@@ -141,6 +141,7 @@ def get_who_strikes_first(
 
     # environment
     weather_has_effect = environment.get("weather_has_effect", False)
+    g_battle_weather = environment.get("g_battle_weather", None)
 
     if weather_has_effect:
         if (

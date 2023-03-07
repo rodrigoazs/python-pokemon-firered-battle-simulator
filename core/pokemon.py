@@ -30,6 +30,8 @@ class BattlePokemon:
             "STAT_SPEED": 0,
             "STAT_SPATK": 0,
             "STAT_SPDEF": 0,
+            "STAT_ACC": 0,  # Only in battles.
+            "STAT_EVASION": 0,  # Only in battles.
         }
     )
     # /*0x20*/ u8 ability;
