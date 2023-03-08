@@ -47,7 +47,7 @@ class BattlePokemon:
     level: int = 1
     # /*0x2B*/ u8 friendship;
     # /*0x2C*/ u16 maxHP;
-    max_hp: int | None = None
+    max_hp: int = 0
     # /*0x2E*/ u16 item;
     # /*0x30*/ u8 nickname[POKEMON_NAME_LENGTH + 1];
     # /*0x3B*/ u8 ppBonuses;
