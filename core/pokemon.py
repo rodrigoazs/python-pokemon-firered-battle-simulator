@@ -288,8 +288,7 @@ def calculate_base_damage(
         else:
             damage_helper = apply_stat_mod(damage_helper, defender, defense, "STAT_DEF")
 
-        damage /= damage_helper
-        damage /= 50
+        damage *= damage_helper / 50
 
         # -- BURN --
         if ("STATUS1_BURN" in attacker.status1) and attacker.ability != "ABILITY_GUTS":
@@ -341,8 +340,7 @@ def calculate_base_damage(
                 damage_helper, defender, sp_defense, "STAT_SPDEF"
             )
 
-        damage /= damage_helper
-        damage /= 50
+        damage *= damage_helper / 50
 
         # -- SCREEN --
         if "SIDE_STATUS_LIGHTSCREEN" in side_status and g_crit_multiplier == 1:
