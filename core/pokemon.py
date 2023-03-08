@@ -90,28 +90,27 @@ def is_type_special(type_):
 
 # TODO: ranges from -6 to 8?
 G_STAT_STAGE_RATIOS = [
-    (10, 40),
-    (10, 35),
-    (10, 30),
-    (10, 25),
-    (10, 20),
-    (10, 15),
-    (10, 10),
-    (15, 10),
-    (20, 10),
-    (25, 10),
-    (30, 10),
-    (35, 10),
-    (40, 10),
-    (138, 174),
-    (108, 120),
+    10 / 40,
+    10 / 35,
+    10 / 30,
+    10 / 25,
+    10 / 20,
+    10 / 15,
+    10 / 10,
+    15 / 10,
+    20 / 10,
+    25 / 10,
+    30 / 10,
+    35 / 10,
+    40 / 10,
+    138 / 174,
+    108 / 120,
 ]
 
 
 def apply_stat_mod(var: int, mon: BattlePokemon, stat: int, stat_index: str):
-    num, dem = G_STAT_STAGE_RATIOS[mon.stat_stages[stat_index] + 6]
-    var = stat * num
-    var /= dem
+    ratio = G_STAT_STAGE_RATIOS[mon.stat_stages[stat_index] + 6]
+    var = stat * ratio
     return var
 
 

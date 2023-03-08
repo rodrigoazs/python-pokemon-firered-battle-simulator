@@ -166,10 +166,8 @@ def get_who_strikes_first(
         speed_multiplier_battler1 = 1
         speed_multiplier_battler2 = 1
 
-    ratio_el = G_STAT_STAGE_RATIOS[battler1.stat_stages["STAT_SPEED"] + 6]
-    speed_battler1 = (
-        battler1.speed * speed_multiplier_battler1 * ratio_el[0] / ratio_el[1]
-    )
+    ratio = G_STAT_STAGE_RATIOS[battler1.stat_stages["STAT_SPEED"] + 6]
+    speed_battler1 = battler1.speed * speed_multiplier_battler1 * ratio
 
     #     if (gBattleMons[battler1].item == ITEM_ENIGMA_BERRY)
     #     {
@@ -194,10 +192,8 @@ def get_who_strikes_first(
     #         speedBattler1 = UINT_MAX;
 
     # check second battlerId's speed
-    ratio_el = G_STAT_STAGE_RATIOS[battler2.stat_stages["STAT_SPEED"] + 6]
-    speed_battler1 = (
-        battler2.speed * speed_multiplier_battler2 * ratio_el[0] / ratio_el[1]
-    )
+    ratio = G_STAT_STAGE_RATIOS[battler2.stat_stages["STAT_SPEED"] + 6]
+    speed_battler1 = battler2.speed * speed_multiplier_battler2 * ratio
 
     #     if (gBattleMons[battler2].item == ITEM_ENIGMA_BERRY)
     #     {

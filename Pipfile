@@ -9,7 +9,6 @@ black = "==22.3.0"
 pytest = "~=7.0.0"
 
 [packages]
-numpy = "*"
 
 [requires]
 python_version = "3.11"
