@@ -43,6 +43,7 @@ class BattlePokemon:
     # /*0x23*/ u8 unknown;
     # /*0x24*/ u8 pp[4];
     # /*0x28*/ u16 hp;
+    hp: int = 0
     # /*0x2A*/ u8 level;
     level: int = 1
     # /*0x2B*/ u8 friendship;
