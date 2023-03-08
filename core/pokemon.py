@@ -1,11 +1,12 @@
 from dataclasses import dataclass, field
 
+from core.battle_constants import G_STAT_STAGE_RATIOS
 from core.battle_moves import G_BATTLE_MOVES
 
 
 @dataclass
 class BattlePokemon:
-    species: int | None = None
+    species: int = None
     attack: int = 0
     defense: int = 0
     speed: int = 0
@@ -87,26 +88,6 @@ def is_type_special(type_):
         "TYPE_DRAGON",
         "TYPE_DARK",
     ]
-
-
-# TODO: ranges from -6 to 8?
-G_STAT_STAGE_RATIOS = [
-    10 / 40,
-    10 / 35,
-    10 / 30,
-    10 / 25,
-    10 / 20,
-    10 / 15,
-    10 / 10,
-    15 / 10,
-    20 / 10,
-    25 / 10,
-    30 / 10,
-    35 / 10,
-    40 / 10,
-    138 / 174,
-    108 / 120,
-]
 
 
 def apply_stat_mod(var: int, mon: BattlePokemon, stat: int, stat_index: str):

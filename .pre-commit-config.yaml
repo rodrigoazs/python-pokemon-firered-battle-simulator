@@ -11,12 +11,12 @@ repos:
         name: isort
         stages: [commit]
         language: system
-        entry: pipenv run isort
+        entry: poetry run isort
         types: [python]
 
       - id: black
         name: black
         stages: [commit]
         language: system
-        entry: pipenv run black
+        entry: poetry run black
         types: [python]

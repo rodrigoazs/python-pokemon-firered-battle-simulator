@@ -7,19 +7,19 @@ install-dev:
 	make build-dev
 
 build-dev:
-	pip install --no-cache-dir -U pip pipenv
-	pipenv install --dev
+	pip install --no-cache-dir -U pip poetry
+	poetry install
 
 tests:
-	pipenv run python -m pytest -v tests
+	poetry run python -m pytest -v tests
 
 format:
-	pipenv run isort .
-	pipenv run black .
+	poetry run isort .
+	poetry run black .
 
 check:
-	pipenv run isort . -c
-	pipenv run black . --check
+	poetry run isort . -c
+	poetry run black . --check
 
 run:
-	pipenv run python simulate.py
+	poetry run python simulate.py

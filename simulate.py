@@ -1,14 +1,15 @@
-from core.battle_ai_switch_items import modulate_by_type_effectiveness
-from core.battle_script_commands import modulate_by_stab
-from core.pokemon import BattlePokemon, calculate_base_damage
+from core.battle import Battle
+from core.pokemon import BattlePokemon
 
-attacker = BattlePokemon(
-    level=10,
-    attack=16,
-    defense=20,
-    speed=17,
-    sp_attack=15,
-    sp_defense=17,
+battler1 = BattlePokemon(
+    level=21,
+    attack=36,
+    defense=45,
+    speed=37,
+    sp_attack=33,
+    sp_defense=38,
+    hp=36,
+    max_hp=36,
     ability="ABILITY_TORRENT",
     stat_stages={
         "STAT_HP": 0,
@@ -17,17 +18,23 @@ attacker = BattlePokemon(
         "STAT_SPEED": 0,
         "STAT_SPATK": 0,
         "STAT_SPDEF": 0,
+        "STAT_ACC": 0,
+        "STAT_EVASION": 0,
     },
-    type1="TYPE_NORMAL",
+    type1="TYPE_WATER",
     type2="TYPE_NONE",
+    moves=["MOVE_TACKLE", "MOVE_WATER_GUN", "MOVE_BUBBLE", "MOVE_WITHDRAW"],
 )
-defender = BattlePokemon(
-    level=10,
-    attack=16,
-    defense=20,
-    speed=17,
-    sp_attack=15,
-    sp_defense=17,
+
+battler2 = BattlePokemon(
+    level=21,
+    attack=36,
+    defense=45,
+    speed=37,
+    sp_attack=33,
+    sp_defense=38,
+    hp=36,
+    max_hp=36,
     ability="ABILITY_TORRENT",
     stat_stages={
         "STAT_HP": 0,
@@ -36,33 +43,18 @@ defender = BattlePokemon(
         "STAT_SPEED": 0,
         "STAT_SPATK": 0,
         "STAT_SPDEF": 0,
+        "STAT_ACC": 0,
+        "STAT_EVASION": 0,
     },
-    type1="TYPE_NORMAL",
+    type1="TYPE_WATER",
     type2="TYPE_NONE",
+    moves=["MOVE_TACKLE", "MOVE_WATER_GUN", "MOVE_BUBBLE", "MOVE_WITHDRAW"],
 )
 
-damage = calculate_base_damage(
-    attacker=attacker,
-    defender=defender,
-    move="MOVE_TACKLE",
-    side_status=[],
-    power_override=None,
-    type_override=None,
-    battler_id_atk=None,
-    battler_id_def=None,
-    environment={"g_crit_multiplier": 1},
-)
-
-print(f"damage: {damage}")
-
-# -- TYPE --
-type_efectiveness = modulate_by_type_effectiveness(
-    "TYPE_NORMAL", defender.type1, defender.type2
-)
-
-print(f"type_efectiveness: {type_efectiveness}")
-
-# -- STAB --
-stab = modulate_by_stab(attacker, "TYPE_NORMAL")
-
-print("final: {}".format(damage * type_efectiveness * stab))
+battle = Battle(battler1, battler2)
+battle.move(0)
+print(battler1)
+print(battler2)
+battle.move(0)
+print(battler1)
+print(battler2)

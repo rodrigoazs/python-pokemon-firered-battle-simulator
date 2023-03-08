@@ -1,4 +1,4 @@
-from core.battle_main import G_TYPE_EFFECTIVENESS
+from core.battle_constants import G_TYPE_EFFECTIVENESS
 
 
 def modulate_by_type_effectiveness(atk_type: str, def_type1: str, def_type2: str):

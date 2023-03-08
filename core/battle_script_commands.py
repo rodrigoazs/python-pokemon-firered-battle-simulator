@@ -1,26 +1,13 @@
 import random
 
+from core.battle_constants import (
+    MAX_STAT_STAGE,
+    MIN_STAT_STAGE,
+    S_ACCURACY_STAGE_RATIOS,
+)
 from core.battle_moves import G_BATTLE_MOVES
 from core.pokemon import BattlePokemon
 
-MIN_STAT_STAGE = -6
-MAX_STAT_STAGE = 6
-
-S_ACCURACY_STAGE_RATIOS = [
-    0.33,  # -6
-    0.36,  # -5
-    0.43,  # -4
-    0.5,  # -3
-    0.6,  # -2
-    0.75,  # -1
-    1.0,  #  0
-    1.33,  # +1
-    1.66,  # +2
-    2.0,  # +3
-    2.33,  # +4
-    2.66,  # +5
-    3.0,  # +6
-]
 
 # Multiplies the damage by a random factor between 85% to 100% inclusive
 # TODO: int can be applied only in the end of calculation
@@ -40,7 +27,9 @@ def modulate_by_stab(attacker: BattlePokemon, move_type: str):
     return 1.5 if is_battler_of_type(attacker, move_type) else 1.0
 
 
-def cmd_accuracy_check(attacker: BattlePokemon, target: BattlePokemon, move: str):
+def cmd_accuracy_check(
+    attacker: BattlePokemon, target: BattlePokemon, move: str, environment: dict = {}
+):
     type_ = G_BATTLE_MOVES[move]["type"]
 
     # environment

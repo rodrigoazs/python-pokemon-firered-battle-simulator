@@ -1,127 +1,8 @@
 import random
 
+from core.battle_constants import G_STAT_STAGE_RATIOS
 from core.battle_moves import G_BATTLE_MOVES
 from core.pokemon import BattlePokemon
-
-# 20 is ×2.0 TYPE_MUL_SUPER_EFFECTIVE
-# 10 is ×1.0 TYPE_MUL_NORMAL
-# 05 is ×0.5 TYPE_MUL_NOT_EFFECTIVE
-# 00 is ×0.0 TYPE_MUL_NO_EFFECT
-
-
-G_TYPE_EFFECTIVENESS = {
-    ("TYPE_NORMAL", "TYPE_ROCK"): 0.5,
-    ("TYPE_NORMAL", "TYPE_STEEL"): 0.5,
-    ("TYPE_FIRE", "TYPE_FIRE"): 0.5,
-    ("TYPE_FIRE", "TYPE_WATER"): 0.5,
-    ("TYPE_FIRE", "TYPE_GRASS"): 2.0,
-    ("TYPE_FIRE", "TYPE_ICE"): 2.0,
-    ("TYPE_FIRE", "TYPE_BUG"): 2.0,
-    ("TYPE_FIRE", "TYPE_ROCK"): 0.5,
-    ("TYPE_FIRE", "TYPE_DRAGON"): 0.5,
-    ("TYPE_FIRE", "TYPE_STEEL"): 2.0,
-    ("TYPE_WATER", "TYPE_FIRE"): 2.0,
-    ("TYPE_WATER", "TYPE_WATER"): 0.5,
-    ("TYPE_WATER", "TYPE_GRASS"): 0.5,
-    ("TYPE_WATER", "TYPE_GROUND"): 2.0,
-    ("TYPE_WATER", "TYPE_ROCK"): 2.0,
-    ("TYPE_WATER", "TYPE_DRAGON"): 0.5,
-    ("TYPE_ELECTRIC", "TYPE_WATER"): 2.0,
-    ("TYPE_ELECTRIC", "TYPE_ELECTRIC"): 0.5,
-    ("TYPE_ELECTRIC", "TYPE_GRASS"): 0.5,
-    ("TYPE_ELECTRIC", "TYPE_GROUND"): 0.0,
-    ("TYPE_ELECTRIC", "TYPE_FLYING"): 2.0,
-    ("TYPE_ELECTRIC", "TYPE_DRAGON"): 0.5,
-    ("TYPE_GRASS", "TYPE_FIRE"): 0.5,
-    ("TYPE_GRASS", "TYPE_WATER"): 2.0,
-    ("TYPE_GRASS", "TYPE_GRASS"): 0.5,
-    ("TYPE_GRASS", "TYPE_POISON"): 0.5,
-    ("TYPE_GRASS", "TYPE_GROUND"): 2.0,
-    ("TYPE_GRASS", "TYPE_FLYING"): 0.5,
-    ("TYPE_GRASS", "TYPE_BUG"): 0.5,
-    ("TYPE_GRASS", "TYPE_ROCK"): 2.0,
-    ("TYPE_GRASS", "TYPE_DRAGON"): 0.5,
-    ("TYPE_GRASS", "TYPE_STEEL"): 0.5,
-    ("TYPE_ICE", "TYPE_WATER"): 0.5,
-    ("TYPE_ICE", "TYPE_GRASS"): 2.0,
-    ("TYPE_ICE", "TYPE_ICE"): 0.5,
-    ("TYPE_ICE", "TYPE_GROUND"): 2.0,
-    ("TYPE_ICE", "TYPE_FLYING"): 2.0,
-    ("TYPE_ICE", "TYPE_DRAGON"): 2.0,
-    ("TYPE_ICE", "TYPE_STEEL"): 0.5,
-    ("TYPE_ICE", "TYPE_FIRE"): 0.5,
-    ("TYPE_FIGHTING", "TYPE_NORMAL"): 2.0,
-    ("TYPE_FIGHTING", "TYPE_ICE"): 2.0,
-    ("TYPE_FIGHTING", "TYPE_POISON"): 0.5,
-    ("TYPE_FIGHTING", "TYPE_FLYING"): 0.5,
-    ("TYPE_FIGHTING", "TYPE_PSYCHIC"): 0.5,
-    ("TYPE_FIGHTING", "TYPE_BUG"): 0.5,
-    ("TYPE_FIGHTING", "TYPE_ROCK"): 2.0,
-    ("TYPE_FIGHTING", "TYPE_DARK"): 2.0,
-    ("TYPE_FIGHTING", "TYPE_STEEL"): 2.0,
-    ("TYPE_POISON", "TYPE_GRASS"): 2.0,
-    ("TYPE_POISON", "TYPE_POISON"): 0.5,
-    ("TYPE_POISON", "TYPE_GROUND"): 0.5,
-    ("TYPE_POISON", "TYPE_ROCK"): 0.5,
-    ("TYPE_POISON", "TYPE_GHOST"): 0.5,
-    ("TYPE_POISON", "TYPE_STEEL"): 0.0,
-    ("TYPE_GROUND", "TYPE_FIRE"): 2.0,
-    ("TYPE_GROUND", "TYPE_ELECTRIC"): 2.0,
-    ("TYPE_GROUND", "TYPE_GRASS"): 0.5,
-    ("TYPE_GROUND", "TYPE_POISON"): 2.0,
-    ("TYPE_GROUND", "TYPE_FLYING"): 0.0,
-    ("TYPE_GROUND", "TYPE_BUG"): 0.5,
-    ("TYPE_GROUND", "TYPE_ROCK"): 2.0,
-    ("TYPE_GROUND", "TYPE_STEEL"): 2.0,
-    ("TYPE_FLYING", "TYPE_ELECTRIC"): 0.5,
-    ("TYPE_FLYING", "TYPE_GRASS"): 2.0,
-    ("TYPE_FLYING", "TYPE_FIGHTING"): 2.0,
-    ("TYPE_FLYING", "TYPE_BUG"): 2.0,
-    ("TYPE_FLYING", "TYPE_ROCK"): 0.5,
-    ("TYPE_FLYING", "TYPE_STEEL"): 0.5,
-    ("TYPE_PSYCHIC", "TYPE_FIGHTING"): 2.0,
-    ("TYPE_PSYCHIC", "TYPE_POISON"): 2.0,
-    ("TYPE_PSYCHIC", "TYPE_PSYCHIC"): 0.5,
-    ("TYPE_PSYCHIC", "TYPE_DARK"): 0.0,
-    ("TYPE_PSYCHIC", "TYPE_STEEL"): 0.5,
-    ("TYPE_BUG", "TYPE_FIRE"): 0.5,
-    ("TYPE_BUG", "TYPE_GRASS"): 2.0,
-    ("TYPE_BUG", "TYPE_FIGHTING"): 0.5,
-    ("TYPE_BUG", "TYPE_POISON"): 0.5,
-    ("TYPE_BUG", "TYPE_FLYING"): 0.5,
-    ("TYPE_BUG", "TYPE_PSYCHIC"): 2.0,
-    ("TYPE_BUG", "TYPE_GHOST"): 0.5,
-    ("TYPE_BUG", "TYPE_DARK"): 2.0,
-    ("TYPE_BUG", "TYPE_STEEL"): 0.5,
-    ("TYPE_ROCK", "TYPE_FIRE"): 2.0,
-    ("TYPE_ROCK", "TYPE_ICE"): 2.0,
-    ("TYPE_ROCK", "TYPE_FIGHTING"): 0.5,
-    ("TYPE_ROCK", "TYPE_GROUND"): 0.5,
-    ("TYPE_ROCK", "TYPE_FLYING"): 2.0,
-    ("TYPE_ROCK", "TYPE_BUG"): 2.0,
-    ("TYPE_ROCK", "TYPE_STEEL"): 0.5,
-    ("TYPE_GHOST", "TYPE_NORMAL"): 0.0,
-    ("TYPE_GHOST", "TYPE_PSYCHIC"): 2.0,
-    ("TYPE_GHOST", "TYPE_DARK"): 0.5,
-    ("TYPE_GHOST", "TYPE_STEEL"): 0.5,
-    ("TYPE_GHOST", "TYPE_GHOST"): 2.0,
-    ("TYPE_DRAGON", "TYPE_DRAGON"): 2.0,
-    ("TYPE_DRAGON", "TYPE_STEEL"): 0.5,
-    ("TYPE_DARK", "TYPE_FIGHTING"): 0.5,
-    ("TYPE_DARK", "TYPE_PSYCHIC"): 2.0,
-    ("TYPE_DARK", "TYPE_GHOST"): 2.0,
-    ("TYPE_DARK", "TYPE_DARK"): 0.5,
-    ("TYPE_DARK", "TYPE_STEEL"): 0.5,
-    ("TYPE_STEEL", "TYPE_FIRE"): 0.5,
-    ("TYPE_STEEL", "TYPE_WATER"): 0.5,
-    ("TYPE_STEEL", "TYPE_ELECTRIC"): 0.5,
-    ("TYPE_STEEL", "TYPE_ICE"): 2.0,
-    ("TYPE_STEEL", "TYPE_ROCK"): 2.0,
-    ("TYPE_STEEL", "TYPE_STEEL"): 0.5,
-    ("TYPE_FORESIGHT", "TYPE_FORESIGHT"): 0.0,
-    ("TYPE_NORMAL", "TYPE_GHOST"): 0.0,
-    ("TYPE_FIGHTING", "TYPE_GHOST"): 0.0,
-}
 
 
 def get_who_strikes_first(
@@ -193,7 +74,7 @@ def get_who_strikes_first(
 
     # check second battlerId's speed
     ratio = G_STAT_STAGE_RATIOS[battler2.stat_stages["STAT_SPEED"] + 6]
-    speed_battler1 = battler2.speed * speed_multiplier_battler2 * ratio
+    speed_battler2 = battler2.speed * speed_multiplier_battler2 * ratio
 
     #     if (gBattleMons[battler2].item == ITEM_ENIGMA_BERRY)
     #     {
@@ -253,52 +134,3 @@ def get_who_strikes_first(
             return 2  # battler2 has more speed
         else:
             return 1  # battler1 has more speed
-
-
-class Battle:
-    def __init__(self, battler1: BattlePokemon, battler2: BattlePokemon):
-        self.battlers = (battler1, battler2)
-        self.battler_turn = 0
-
-    def _get_attacker(self):
-        return self.battlers[self.battler_turn]
-
-    def _get_defender(self):
-        return self.battlers[self.battler_turn + 1 % 2]
-
-    def _set_who_strikes_first(self):
-        battler_first = get_who_strikes_first(battler[0], battler[1])
-        self.battler_turn = battler_first - 1
-
-    def move(self, move: str):
-        attacker = self._get_attacker()
-        defender = self._get_defender()
-        if move not in attacker.moves:
-            raise Exception(f"{move} not in {attacker.moves}")
-
-        if cmd_accuracy_check(attacker, defender, move):
-            # calculate damage
-            damage = calculate_base_damage(
-                attacker=attacker,
-                defender=defender,
-                move=move,
-            )
-            type_efectiveness = modulate_by_type_effectiveness(
-                attacker.type1, defender.type1, defender.type2
-            )
-            stab = modulate_by_stab(attacker, G_BATTLE_MOVES[move]["type"])
-            final_damage = apply_random_dmg_multiplier(
-                damage * type_efectiveness * stab
-            )
-
-            # apply damage
-            defender.hp = min([0, defender.hp - final_damage])
-
-        self.battler_turn = self.battler_turn + 1 % 2
-
-    def end_of_battle(self):
-        battler1 = self.battlers[0]
-        battler2 = self.battlers[1]
-        if battler1.hp == 0 or battler2.hp == 0:
-            return True
-        return False
